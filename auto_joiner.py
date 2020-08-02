@@ -160,9 +160,18 @@ class Team:
             f"ul>li.team[role='treeitem']>div[data-tid='team-{self.name}-li']")
 
 
+def create_config():
+    dictionary = {"email": "", "password": "", "delay": 15, "start_automatically": True, "random_delay": False, 
+        "auto_leave_after_min": -1, "leave_if_last": True, "headless": False, "mute_audio": True, "chrome_type": "google-chrome", 
+                "blacklist": [{"team_name": "Group ISTE-NITK", "channel_names": []}]}
+    path = os.path.join(os.path.expanduser('~'), 'Documents', 'config.json')
+    with open(path, "w") as outfile: 
+        json.dump(dictionary, outfile) 
+
 def save_config(email, pwd, refrate, mute_audio, random_delay, auto_start):
     global config
-    with open('config.json', 'r') as json_data_file:
+    path = os.path.join(os.path.expanduser('~'), 'Documents', 'config.json')
+    with open(path, 'r') as json_data_file:
         config = json.load(json_data_file)
     config['email'] = email
     config['password'] = pwd
@@ -170,13 +179,14 @@ def save_config(email, pwd, refrate, mute_audio, random_delay, auto_start):
     config['mute_audio'] = mute_audio
     config['random_delay'] = random_delay
     config['start_automatically'] = auto_start
-    with open('config.json', 'w') as f:
+    with open(path, 'w') as f:
         json.dump(config, f)
 
 
 def load_config():
     global config
-    with open('config.json') as json_data_file:
+    path = os.path.join(os.path.expanduser('~'), 'Documents', 'config.json')
+    with open(path) as json_data_file:
         config = json.load(json_data_file)
 
 
@@ -285,6 +295,9 @@ def mainu(email, pwd, rate, mute_audio, random_delay, auto_start):
 
     active_meeting = Meeting(-1, -1)
 
+    config_path = os.path.expanduser('~user/sample.json')
+    if not os.path.isfile(config_path):
+        create_config()
     save_config(email, pwd, rate, mute_audio, random_delay, auto_start)
     load_config()
 
@@ -349,18 +362,6 @@ def mainu(email, pwd, rate, mute_audio, random_delay, auto_start):
         use_web_instead = wait_until_found(".use-app-lnk", 5)
         if use_web_instead is not None:
             use_web_instead.click()
-
-        # if additional organisations are setup in the config file
-    if 'organisation_num' in config and config['organisation_num'] > 1:
-        additional_org_num = config['organisation_num']
-        select_change_org = wait_until_found("button.tenant-switcher", 20)
-        if select_change_org is not None:
-            select_change_org.click()
-            
-            change_org = wait_until_found(f"li.tenant-option[aria-posinset='{additional_org_num}']", 20)
-            if change_org is not None:
-                change_org.click()
-                time.sleep(5)
     
     print("Waiting for correct page...")
     if wait_until_found("div[data-tid='team-channel-list']", 60 * 5) is None:
