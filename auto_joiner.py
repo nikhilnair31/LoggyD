@@ -19,7 +19,6 @@ config = None
 uuid_regex = r"\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b"
 hangup_thread: Timer = None
 
-
 class Meeting:
     def __init__(self, started_at, meeting_id):
         self.started_at = started_at
@@ -161,6 +160,20 @@ class Team:
             f"ul>li.team[role='treeitem']>div[data-tid='team-{self.name}-li']")
 
 
+def save_config(email, pwd, refrate, mute_audio, random_delay, auto_start):
+    global config
+    with open('config.json', 'r') as json_data_file:
+        config = json.load(json_data_file)
+    config['email'] = email
+    config['password'] = pwd
+    config['delay'] = refrate
+    config['mute_audio'] = mute_audio
+    config['random_delay'] = random_delay
+    config['start_automatically'] = auto_start
+    with open('config.json', 'w') as f:
+        json.dump(config, f)
+
+
 def load_config():
     global config
     with open('config.json') as json_data_file:
@@ -267,9 +280,12 @@ def hangup():
         return
 
 
-def main():
-    global browser, config
+def mainu(email, pwd, rate, mute_audio, random_delay, auto_start):
+    global browser, config, active_meeting
 
+    active_meeting = Meeting(-1, -1)
+
+    save_config(email, pwd, rate, mute_audio, random_delay, auto_start)
     load_config()
 
     chrome_options = webdriver.ChromeOptions()
@@ -386,7 +402,7 @@ def main():
     print("\nWorking...")
 
     while 1:
-        time.sleep(60)
+        time.sleep(config['delay'])
         for team in teams:
             team.update_meetings()
 
@@ -394,7 +410,6 @@ def main():
             for team in teams:
                 team.update_elem()
 
-
-if __name__ == "__main__":
-    active_meeting = Meeting(-1, -1)
-    main()
+# if __name__ == "__main__":
+#     active_meeting = Meeting(-1, -1)
+#     mainu()
