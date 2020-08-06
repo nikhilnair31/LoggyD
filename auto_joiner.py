@@ -3,6 +3,7 @@ import random
 import re
 import os
 import time
+import datetime
 from threading import Timer
 
 from selenium import webdriver
@@ -160,36 +161,6 @@ class Team:
             f"ul>li.team[role='treeitem']>div[data-tid='team-{self.name}-li']")
 
 
-def create_config():
-    dictionary = {"email": "", "password": "", "delay": 15, "start_automatically": True, "random_delay": False, 
-        "auto_leave_after_min": -1, "leave_if_last": True, "headless": False, "mute_audio": True, "chrome_type": "google-chrome", 
-                "blacklist": [{"team_name": "Group ISTE-NITK", "channel_names": []}]}
-    path = os.path.join(os.path.expanduser('~'), 'Documents', 'config.json')
-    with open(path, "w") as outfile: 
-        json.dump(dictionary, outfile) 
-
-def save_config(email, pwd, refrate, mute_audio, random_delay, auto_start):
-    global config
-    path = os.path.join(os.path.expanduser('~'), 'Documents', 'config.json')
-    with open(path, 'r') as json_data_file:
-        config = json.load(json_data_file)
-    config['email'] = email
-    config['password'] = pwd
-    config['delay'] = refrate
-    config['mute_audio'] = mute_audio
-    config['random_delay'] = random_delay
-    config['start_automatically'] = auto_start
-    with open(path, 'w') as f:
-        json.dump(config, f)
-
-
-def load_config():
-    global config
-    path = os.path.join(os.path.expanduser('~'), 'Documents', 'config.json')
-    with open(path) as json_data_file:
-        config = json.load(json_data_file)
-
-
 def wait_until_found(sel, timeout):
     try:
         element_present = EC.visibility_of_element_located((By.CSS_SELECTOR, sel))
@@ -290,16 +261,12 @@ def hangup():
         return
 
 
-def mainu(email, pwd, rate, mute_audio, random_delay, auto_start):
+def mainu(set_config):
     global browser, config, active_meeting
 
     active_meeting = Meeting(-1, -1)
-
-    config_path = os.path.expanduser('~user/sample.json')
-    if not os.path.isfile(config_path):
-        create_config()
-    save_config(email, pwd, rate, mute_audio, random_delay, auto_start)
-    load_config()
+    # print('a4 types are {} and {}'.format(type(config), type(set_config)))
+    config = set_config
 
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--ignore-certificate-errors')
@@ -309,11 +276,7 @@ def mainu(email, pwd, rate, mute_audio, random_delay, auto_start):
     chrome_options.add_argument("--use-fake-ui-for-media-stream")
     chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
-    if 'headless' in config and config['headless']:
-        chrome_options.add_argument('--headless')
-        print("Enabled headless mode")
-
-    if 'mute_audio' in config and config['mute_audio']:
+    if 'mute_audio' in config:
         chrome_options.add_argument("--mute-audio")
 
     chrome_type = ChromeType.GOOGLE
