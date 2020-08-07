@@ -59,6 +59,12 @@ class Team:
 
     def expand_channels(self):
         try:
+            # wait = WebDriverWait(browser, 5)
+            # elem = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[div.channels]')))
+
+            # elem = EC.visibility_of_element_located((By.CSS_SELECTOR, '[div.channels]'))
+            # WebDriverWait(browser, 5).until(elem)
+
             elem = self.elem.find_element_by_css_selector("div.channels")
         except exceptions.NoSuchElementException:
             try:

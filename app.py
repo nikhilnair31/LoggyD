@@ -9,7 +9,9 @@ from PIL import Image, ImageTk, ImageSequence
 root = Tk()
 bg_col = '#000000'
 fg_col = '#FFFFFF'
-start_month = -1
+hl_col = '#FF0000'
+last_date = -1
+days_left = 31
 email = StringVar()
 pwd = StringVar()
 refresh_rate = IntVar()
@@ -33,13 +35,15 @@ class App:
 
 def main_screen():
    global auto_start, bg_col, fg_col
-   root.geometry("300x700")
+   root.geometry("300x600")
    root.configure(background=bg_col)
    root.title("DoggyLoggy")
    # root.iconbitmap('static/icon.ico')
    Label(text = "", bg = bg_col).pack()
    Label(text = "LoggyDoggy", bg = bg_col, fg = fg_col, font = ("Comfortaa", 20)).pack()
    Label(text = "", bg = bg_col).pack()
+   Label(text = "Days Left", font = ("Comfortaa", 12), bg = bg_col, fg = fg_col).pack()
+   Label(text = str(days_left), font = ("Comfortaa", 10), bg = bg_col, fg = hl_col).pack()
    Label(text = "Email ID", font = ("Comfortaa", 12), bg = bg_col, fg = fg_col).pack()
    email_entry = Entry(root, textvariable=email, width=35, justify='center').pack()
    Label(text = "Password", font = ("Comfortaa", 12), bg = bg_col, fg = fg_col).pack()
@@ -53,10 +57,14 @@ def main_screen():
    Label(text = "", bg = bg_col).pack()
    auto_star = Checkbutton(root, text = 'Auto Start', variable = auto_start, width=10).pack()
    Label(text = "", bg = bg_col).pack()
-   Button(root, text = "Start", width=10, command=get_started).pack()
-   Label(text = "", bg = bg_col).pack()
-   Button(root, text = "Stop", width=10, command=get_stopped).pack()
-   Label(text = "", bg = bg_col).pack()
+   if(days_left > 0):
+      Button(root, text = "Start", width=10, command=get_started).pack()
+      Label(text = "", bg = bg_col).pack()
+      Button(root, text = "Stop", width=10, command=get_stopped).pack()
+      Label(text = "", bg = bg_col).pack()
+   else:
+      Button(root, text = "Renew Subscription", width=15, command=get_started).pack()
+      Label(text = "", bg = bg_col).pack()
    # if auto_start.get() is True:
    #    get_started()
    # image = Image.open("static/shiba.png")
@@ -80,16 +88,16 @@ def get_started():
    auto_joiner.mainu(config)
 
 def create_config():
-   global config_path, email, pwd, refresh_rate, mute_audio, random_delay, auto_start, start_month
+   global config_path, email, pwd, refresh_rate, mute_audio, random_delay, auto_start, days_left, last_date
    dictionary = {"email": email.get(), "password": pwd.get(), "delay": refresh_rate.get(), "start_automatically": auto_start.get(), 
       "random_delay": random_delay.get(),  "auto_leave_after_min": -1, "leave_if_last": True, "mute_audio": mute_audio.get(), 
          "chrome_type": "google-chrome", "blacklist": [{"team_name": "Group ISTE-NITK", "channel_names": []}], 
-               "start_month": start_month}
+               "days_left": days_left, "last_date": last_date}
    with open(config_path, "w") as outfile: 
       json.dump(dictionary, outfile)
 
 def save_config():
-   global config_path, email, pwd, refresh_rate, mute_audio, random_delay, auto_start, start_month
+   global config_path, email, pwd, refresh_rate, mute_audio, random_delay, auto_start, days_left, last_date
    load_config()
    config['email'] = email.get()
    config['password'] = pwd.get()
@@ -97,12 +105,13 @@ def save_config():
    config['mute_audio'] = mute_audio.get()
    config['random_delay'] = random_delay.get()
    config['start_automatically'] = auto_start.get()
-   config['start_month'] = start_month
+   config['days_left'] = days_left
+   config['last_date'] = last_date
    with open(config_path, 'w') as f:
       json.dump(config, f)
 
 def pre_load_config():
-   global config_path, config, email, pwd, refresh_rate, mute_audio, random_delay, auto_start, start_month
+   global config_path, config, email, pwd, refresh_rate, mute_audio, random_delay, auto_start, days_left, last_date
    if os.path.isfile(config_path):
       print('Config file exists. Pre-Loading...')
       with open(config_path) as json_data_file:
@@ -113,7 +122,13 @@ def pre_load_config():
       mute_audio.set(config['mute_audio'])
       random_delay.set(config['random_delay'])
       auto_start.set(config['start_automatically'])
-      start_month = config['start_month']
+      if(last_date != config['last_date']):
+         print('New day since last opened...')
+         days_left = config['days_left']-(last_date-config['last_date'])
+      else:
+         print('Same day as last opened...')
+         days_left = config['days_left']
+      last_date = config['last_date']
 
 def load_config():
    global config_path, config
@@ -123,8 +138,8 @@ def load_config():
 
 if __name__ == '__main__':
    date_time_obj = datetime.datetime.now()
-   start_month = int(date_time_obj.strftime("%m"))
-   print(f'Current month is {start_month}')
+   last_date = int(date_time_obj.strftime("%d"))
+   print(f'Start date is {last_date}')
 
    # app = App(root)
    pre_load_config()
