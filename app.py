@@ -18,7 +18,7 @@ refresh_rate = IntVar()
 mute_audio = BooleanVar()
 random_delay = BooleanVar()
 auto_start = BooleanVar()
-config_path = os.path.join(os.path.expanduser('~'), 'config.json')
+config_path = 'account_config.json'
 config = None
 
 class App:

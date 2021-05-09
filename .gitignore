@@ -1,5 +1,5 @@
 #Ignore
-config.json
+account_config.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
