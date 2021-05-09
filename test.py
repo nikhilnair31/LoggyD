@@ -1,5 +1,8 @@
 import tkinter
 import datetime
+import secrets
+import string
+from uuid import getnode as get_mac
 from PIL import Image, ImageTk, ImageSequence
 
 class App:
@@ -21,4 +24,11 @@ class App:
 # root.mainloop()
 
 date_time_obj = datetime.datetime.now()
-print( int(date_time_obj.strftime("%m")) )
+print(f'date today : {int(date_time_obj.strftime("%d"))} ')
+
+alphabet = string.ascii_letters + string.digits
+password = ''.join(secrets.choice(alphabet) for i in range(20))
+print(f'password generated : {password}')
+
+mac = str(get_mac()).encode()
+print(f'mac address : {mac}' )

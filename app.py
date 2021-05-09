@@ -47,7 +47,7 @@ def main_screen():
    Label(text = "Email ID", font = ("Comfortaa", 12), bg = bg_col, fg = fg_col).pack()
    email_entry = Entry(root, textvariable=email, width=35, justify='center').pack()
    Label(text = "Password", font = ("Comfortaa", 12), bg = bg_col, fg = fg_col).pack()
-   pwd_entry = Entry(root, textvariable=pwd, width=35, justify='center').pack()
+   pwd_entry = Entry(root, show="*", textvariable=pwd, width=35, justify='center').pack()
    Label(text = "Refresh Rate", font = ("Comfortaa", 12), bg = bg_col, fg = fg_col).pack()
    rate_entry = Entry(root, textvariable=refresh_rate, width=35, justify='center').pack()
    Label(text = "", bg = bg_col).pack()
